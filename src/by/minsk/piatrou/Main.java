@@ -2,6 +2,7 @@ package by.minsk.piatrou;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
@@ -10,11 +11,15 @@ public class Main {
 		
 		ConvertNumbersToWords converter = new ConvertNumbersToWords();
 		Scanner in = new Scanner(System.in);
-		while(true) {
-			System.out.println("Введите число:");
-			BigInteger number = in.nextBigInteger();
-			System.out.println(converter.converter(number));
+		try {
+			while(true) {
+				System.out.println("Введите число:");
+				
+				BigInteger number = in.nextBigInteger();
+				System.out.println(converter.converter(number));
+			}
+		}catch(InputMismatchException | NullPointerException e) {
+			e.printStackTrace();
 		}
 	}
-
 }

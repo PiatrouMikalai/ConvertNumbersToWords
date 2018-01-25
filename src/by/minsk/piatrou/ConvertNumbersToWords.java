@@ -6,39 +6,43 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.Map.Entry;
 
-public class ConvertNumbersToWords {
+public class ConvertNumbersToWords{
 	private final String PATH_NUMBER = "DataNumbers/Numbers.properties";
 	private final String PATH_DEGREE = "DataNumbers/DegreeOfNumber.properties";
+	
+	private boolean FLAG = false;
 	
 	private HashMap<String, String> number;
 	private HashMap<String, String> degreeOfNumber;
 	
 	private final String[][] endings = {{"а", "и", ""}, {"", "а", "ов"}};
 	
-	private HashMap<String, String> parsPropertiesForMap(String PATH){
+	private HashMap<String, String> parsPropertiesForMap(String PATH) throws IOException{
 		
 		HashMap<String, String> map = new HashMap<String, String>();
-		Properties properties = new Properties();
-		FileInputStream fileInputStream;
-		try {
-			fileInputStream = new FileInputStream(PATH);
-			properties.load(fileInputStream);
+
+		try(FileInputStream fileInputStream = new FileInputStream(PATH)){
+			Properties properties = new Properties();
+		    properties.load(fileInputStream);
 
 			for (Entry<Object, Object> entry : properties.entrySet()) {
 			    map.put((String) entry.getKey(), (String) entry.getValue());
 			}
 			
-			fileInputStream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	
+		
 		return map;
 	}
 	
-	public String converter(BigInteger numb) {
-		number = parsPropertiesForMap(PATH_NUMBER);
-		degreeOfNumber = parsPropertiesForMap(PATH_DEGREE);
+	public String converter(BigInteger numb) throws IOException {
+		
+		if(!FLAG) {
+			number = parsPropertiesForMap(PATH_NUMBER);
+			degreeOfNumber = parsPropertiesForMap(PATH_DEGREE);
+			FLAG = true;
+		}
 		
 		String numbStr = numb.toString();
 		String word = "";
@@ -60,13 +64,21 @@ public class ConvertNumbersToWords {
 			degree = numbStr.length()/3;
 		}
 		
-		int i = 0, j = 0;
-		while(i*3+k-3 != numbStr.length()) {
-			String degre = degree.toString();
-			word += convertNumber(numbStr.substring(((i-1)*3+k)*j, i*3+k), degre);
-
-			j = 1; 
-			i++; degree--;
+		if(degree > 20) {
+			throw new NullPointerException();
+		}
+		
+		try {
+			int i = 0, j = 0;
+			while(i*3+k-3 != numbStr.length()) {
+				String degre = degree.toString();
+				word += (convertNumber(numbStr.substring(((i-1)*3+k)*j, i*3+k), degre));
+	
+				j = 1; 
+				i++; degree--;
+			}
+		}catch(NullPointerException e) {
+			e.printStackTrace();
 		}
 		
 		return word.trim();
@@ -142,7 +154,8 @@ public class ConvertNumbersToWords {
 		if(degree.equals("1"))	i = 0;
 		else i = 1;
 		
-		return degreeOfNumber.get(degree) 
+		
+		return degreeOfNumber.get(degree)
 				+ endings[Integer.valueOf(i)][convertEnding(numb)];
 	}
 	
@@ -152,5 +165,5 @@ public class ConvertNumbersToWords {
 		if(end == 1) return 0;
 		if(end >= 2 && end <= 4) return 1;
 		else return 2;
-	}	
+	}
 }

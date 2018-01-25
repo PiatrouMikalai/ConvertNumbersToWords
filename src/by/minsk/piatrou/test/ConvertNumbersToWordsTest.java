@@ -15,8 +15,8 @@ public class ConvertNumbersToWordsTest {
 	@Test
 	public void testConvertNumbersToWordsFromExl() throws IOException {
 		ConvertNumbersToWords converter = new ConvertNumbersToWords();
-		FileInputStream fis = new FileInputStream("DataTest/TestConvertNumberToWords.xls");
-		Workbook workbook = new HSSFWorkbook(fis);
+		FileInputStream fileInputStream = new FileInputStream("DataTest/TestConvertNumberToWords.xls");
+		Workbook workbook = new HSSFWorkbook(fileInputStream);
 		Sheet sheet = workbook.getSheetAt(0);
       
         for(int i = 0; i < sheet.getLastRowNum()+1; i++) {
@@ -27,8 +27,19 @@ public class ConvertNumbersToWordsTest {
         			converter.converter(new BigInteger(String.valueOf(number))));
         }
         
-        fis.close();
+        fileInputStream.close();
         workbook.close();
 	}
-
+	
+	@Test(expected = NumberFormatException.class)
+	public void testNumberFormatException() throws Exception {
+		ConvertNumbersToWords converter = new ConvertNumbersToWords();
+		converter.converter(new BigInteger("dfg12345"));
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void testNullPointerException() throws Exception {
+		ConvertNumbersToWords converter = new ConvertNumbersToWords();
+		converter.converter(new BigInteger("100000000000000000000000000000000000000000000000000000000000000000000000000"));
+	}
 }
